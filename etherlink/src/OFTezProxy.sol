@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.21;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import { OFT } from "@layerzerolabs/lz-evm-oapp-v2/oft/OFT.sol";
+import "./OFTezEVMProxy.sol";
 /**
  * @notice Calculates the hash of the ticket.
  * @param ticketer The L1 ticketer address in its forged form.
@@ -19,8 +18,9 @@ function hashTicket(bytes22 ticketer, bytes memory content)
 /**
  * @title OFTTezProxy Proxy contract for bridged FA tokens 
  * @notice A ERC20 token contract representing a L1 token on Etherlink.
+ * @dev this is ddeployed on Etherlink ONLY
  */
-contract OFTezProxy is OFT {
+contract OFTezProxy is OFTezEVMProxy {
     uint256 private immutable _ticketHash;
     address private immutable _kernel;
     uint8 private immutable _decimals;
@@ -35,7 +35,7 @@ contract OFTezProxy is OFT {
      * the minting and burning tokens.
      * @param name_ Name of the token.
      * @param symbol_ Symbol of the token.
-     * @param decimals_ Number of decimals of the token.
+     * @param decimals_ decimals of the token. 
      * @param lzEndpoint_ Layer Zero endpoint 
      * @param delegate_ Layer Zero delegate address
      * @param owner_ ownable owner
@@ -50,10 +50,9 @@ contract OFTezProxy is OFT {
         address lzEndpoint_,
         address delegate_,
         address owner_
-        ) Ownable(owner_) OFT(name_, symbol_, lzEndpoint_, delegate_) {
+        ) OFTezEVMProxy(name_, symbol_, decimals_, lzEndpoint_, delegate_, owner_) {
         _ticketHash = hashTicket(ticketer_, content_);
         _kernel = kernel_;
-        _decimals = decimals_;
         this;
     }
 
@@ -106,14 +105,6 @@ contract OFTezProxy is OFT {
         onlyAllowedTicketHash(ticketHash)
     {
         _burn(sender, amount);
-    }
-
-    /**
-     * @notice Returns the number of decimals the token uses.
-     * @return The number of decimals for the token.
-     */
-    function decimals() public view override returns (uint8) {
-        return _decimals;
     }
 
     /**
