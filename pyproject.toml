@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "etherlink-bridge"
+version = "1.0.0"
+description = "This repository showcases smart contracts for an FA tokens bridge between Tezos and Etherlink, aligned with the TZIP-029 standard."
+authors = ["Stepan Naumov <ztepler@baking-bad.org>"]
+packages = [
+    { include = "tezos/tests" },
+    { include = "scripts" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+pytezos = "^3.13.2"
+python-dotenv = "^1.0.0"
+click = "^8.1.7"
+eth-abi = "^5.1.0"
+web3 = "^6.20.0"
+survey = "^5.3.0"
+testcontainers = "^3.7.1"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.21.0"
+mypy = "^1.8.0"
+pytest = "^8.0.0"
+black = "^24.2.0"
+types-requests = "^2.31.0.20240125"
+ruff = "^0.2.1"
+gql = "^3.5.0"
+pydantic = "^2.6.1"
+requests-toolbelt = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+disallow_any_generics = false
+
+[tool.black]
+skip-string-normalization = true
+
+[tool.poetry.scripts]
+deploy_token = "scripts.tezos:deploy_token"
+deploy_ticketer = "scripts.tezos:deploy_ticketer"
+deploy_token_bridge_helper = "scripts.tezos:deploy_token_bridge_helper"
+get_ticketer_params = "scripts.tezos:get_ticketer_params"
+deploy_erc20 = "scripts.etherlink:deploy_erc20"
+fund_etherlink_account = "scripts.etherlink:fund_account"
+deposit = "scripts.tezos:deposit"
+withdraw = "scripts.etherlink:withdraw"
+get_proof = "scripts.rollup_node:get_proof"
+execute_outbox_message = "scripts.tezos:execute_outbox_message"
+parse_withdrawal_event = "scripts.etherlink:parse_withdrawal_event"
+build_tezos_contracts = "scripts.tezos:build_contracts"
+build_etherlink_contracts = "scripts.etherlink:build_contracts"
+etherlink_tests = "scripts.etherlink:test_contracts"
+bootstrap = "scripts.bootstrap.bootstrap:rollout"
+bridge_token = "scripts.bridge_token:bridge_token"
+scan_outbox = "scripts.rollup_node:scan_outbox"
+xtz_deposit = "scripts.tezos:xtz_deposit"
+xtz_withdraw = "scripts.etherlink:xtz_withdraw"

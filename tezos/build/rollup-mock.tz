@@ -1,0 +1,97 @@
+{ parameter
+    (or (pair %execute_outbox_message
+           (pair %ticket_id (address %ticketer) (nat %token_id))
+           (nat %amount)
+           (address %receiver)
+           (address %router))
+        (or %rollup
+           (or (pair %deposit (bytes %routing_info) (ticket %ticket (pair nat (option bytes))))
+               (bytes %b))
+           (bytes %c))) ;
+  storage
+    (pair (big_map %tickets
+             (pair (address %ticketer) (nat %token_id))
+             (ticket (pair nat (option bytes))))
+          (big_map %metadata string bytes)) ;
+  code { PUSH string "WRONG_ROLLUP_ENTRYPOINT" ;
+         SWAP ;
+         UNPAIR ;
+         IF_LEFT
+           { DIG 2 ;
+             DROP ;
+             SWAP ;
+             UNPAIR ;
+             DIG 2 ;
+             UNPAIR 4 ;
+             DIG 4 ;
+             NONE (ticket (pair nat (option bytes))) ;
+             DUP 3 ;
+             GET_AND_UPDATE ;
+             IF_NONE { PUSH string "TKT_NOT_FOUND" ; FAILWITH } {} ;
+             READ_TICKET ;
+             CDR ;
+             CDR ;
+             DUP 5 ;
+             DUP 2 ;
+             COMPARE ;
+             GE ;
+             IF { DUP 5 ; SWAP ; SUB ; ABS }
+                { DROP ; PUSH string "TKT_INSUFFICIENT_AMOUNT" ; FAILWITH } ;
+             DIG 4 ;
+             PAIR ;
+             SWAP ;
+             SPLIT_TICKET ;
+             IF_NONE { PUSH string "TKT_IRREDUCIBLE_AMOUNT" ; FAILWITH } {} ;
+             UNPAIR ;
+             DUG 2 ;
+             SOME ;
+             DIG 3 ;
+             UPDATE ;
+             SWAP ;
+             DIG 3 ;
+             CONTRACT %withdraw
+               (pair (address %receiver) (ticket %ticket (pair nat (option bytes)))) ;
+             IF_NONE { PUSH string "ROUTER_ENTRYPOINT_NOT_FOUND" ; FAILWITH } {} ;
+             PUSH mutez 0 ;
+             DIG 2 ;
+             DIG 4 ;
+             PAIR ;
+             TRANSFER_TOKENS ;
+             DUG 2 ;
+             PAIR ;
+             NIL operation ;
+             DIG 2 ;
+             CONS }
+           { IF_LEFT
+               { IF_LEFT { DIG 2 ; DROP } { DROP ; SWAP ; FAILWITH } }
+               { DROP ; SWAP ; FAILWITH } ;
+             CDR ;
+             SWAP ;
+             UNPAIR ;
+             DIG 2 ;
+             READ_TICKET ;
+             UNPAIR ;
+             SWAP ;
+             CAR ;
+             DIG 2 ;
+             SWAP ;
+             CAR ;
+             DIG 2 ;
+             PAIR ;
+             DIG 2 ;
+             NONE (ticket (pair nat (option bytes))) ;
+             DUP 3 ;
+             GET_AND_UPDATE ;
+             IF_NONE
+               { DIG 2 }
+               { DIG 3 ;
+                 PAIR ;
+                 JOIN_TICKETS ;
+                 IF_NONE { PUSH string "option is None" ; FAILWITH } {} } ;
+             SOME ;
+             DIG 2 ;
+             UPDATE ;
+             PAIR ;
+             NIL operation } ;
+         PAIR } }
+

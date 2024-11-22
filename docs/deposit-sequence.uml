@@ -1,0 +1,47 @@
+@startuml
+title FA Tokens Bridge Deposit with Token Bridge Helper
+actor       User          as User
+participant TokenBridgeHelper [
+    =Token Bridge Helper
+]
+participant FAToken [
+    =FA Token
+]
+participant Ticketer [
+    =Ticketer
+]
+participant Rollup [
+    =Rollup
+]
+
+User -> FAToken ++ : approve
+note over FAToken: owner: User\noperator: Token Bridge Helper
+FAToken --> User --
+
+User -> TokenBridgeHelper ++ : deposit
+note over TokenBridgeHelper : amount: nat\nrollup: address\nrouting_info: bytes
+
+TokenBridgeHelper -> FAToken ++ : transfer
+note over FAToken: from: User\nto: Token Bridge Helper\namount: nat
+FAToken --> TokenBridgeHelper --
+
+TokenBridgeHelper -> FAToken ++ : approve
+note over FAToken: owner: Token Bridge Helper\noperator: Ticketer
+FAToken --> TokenBridgeHelper --
+
+TokenBridgeHelper -> Ticketer ++ : deposit
+note over Ticketer : amount: nat
+
+Ticketer -> FAToken ++ : transfer
+note over FAToken: from: Token Bridge Helper\nto: Ticketer\namount: nat
+FAToken --> Ticketer --
+
+Ticketer --> TokenBridgeHelper -- : mints ticket
+note over TokenBridgeHelper : ticket:\n    ticketer: Ticketer\n    amount: nat\n    payload: pair nat bytes
+
+TokenBridgeHelper -> Rollup ++ : deposit
+note over Rollup : ticket:\n    ticketer: Ticketer\n    amount: nat\n    payload: pair nat bytes\n\nrouting_info: bytes
+Rollup --> TokenBridgeHelper --
+TokenBridgeHelper --> User --
+
+@enduml
