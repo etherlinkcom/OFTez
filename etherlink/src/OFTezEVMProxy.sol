@@ -6,8 +6,8 @@ import { OFT } from "@layerzerolabs/lz-evm-oapp-v2/oft/OFT.sol";
 
 /**
  * @title OFTTezEVMProxy Proxy contract for recieving and sending FA Tokens Bridged through Etherlink
- * @notice A ERC20 token contract representing a L1 token on Etherlink.
- * @dev this is ddeployed on other EVM chains ONLY
+ * @dev This is the ERC20 and OFT compatilble token contract that represents an Etherlink based token that is bridged to another EVM chain
+ * @notice this is ddeployed on other EVM chains ONLY.
  */
 
 contract OFTezEVMProxy is OFT { 
@@ -19,7 +19,7 @@ contract OFTezEVMProxy is OFT {
      * @param decimals_ decimals of the token. 
      * @param lzEndpoint_ Layer Zero endpoint 
      * @param delegate_ Layer Zero delegate address
-     * @param owner_ ownable owner
+     * @param owner_ owner of the contract
      */
     constructor(string memory name_,
                     string memory symbol_,

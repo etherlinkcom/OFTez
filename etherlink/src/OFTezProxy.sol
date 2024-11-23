@@ -3,7 +3,7 @@ pragma solidity >=0.8.21;
 
 import "./OFTezEVMProxy.sol";
 /**
- * @notice Calculates the hash of the ticket.
+ * @dev Calculates the hash of the ticket.
  * @param ticketer The L1 ticketer address in its forged form.
  * @param content The ticket content as a micheline expression in its forged form.
  * @return ticketHash The calculated ticket hash as a uint256.
@@ -17,8 +17,8 @@ function hashTicket(bytes22 ticketer, bytes memory content)
 
 /**
  * @title OFTTezProxy Proxy contract for bridged FA tokens 
- * @notice A ERC20 token contract representing a L1 token on Etherlink.
- * @dev this is ddeployed on Etherlink ONLY
+ * @dev this represents the proxy contract for the Tezos (L1) token on Etherlink (L2) It is EVM, OFT and TIZP029 compatible. 
+ * @notice this is ddeployed on Etherlink ONLY
  */
 contract OFTezProxy is OFTezEVMProxy {
     uint256 private immutable _ticketHash;
