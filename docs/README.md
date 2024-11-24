@@ -1,3 +1,8 @@
+###
+
+
+
+
 ### Bridge configuration
 To configure the bridge for a new token (i.e., to list a new token pair), users need to engage with the **Ticket Transport Layer**. This critical component of the bridge facilitates the transfer of tickets between Tezos and Etherlink.
 
