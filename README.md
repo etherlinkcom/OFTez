@@ -1,4 +1,5 @@
 # Etherlink OFTez Token Bridge
+The Etherlink OFTez Token Bridge provides an implementation of the [OFTez Bridging Standard](https://gitlab.com/taurai.ushewokunze/tzip/-/blob/master/drafts/current/draft-oftez-token-standard.md?ref_type=heads) 
 
 ## Introduction 
 The Etherlink OFTez Token Bridge provides a way for EVM compatible tokens to bridge between hosting i.e. variant EVMs, Etherlink (L2) and Tezos (L1) without the need for token swaps along the way. Users simply bridge from their host EVM onto Etherlink using the same wallet address, proceeding to bridge from Etherlink onto Tezos (L1) to their preferred Tezos Wallet. This is shown below:
