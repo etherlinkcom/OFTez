@@ -36,20 +36,24 @@ If you are using Etherlink Testnet, you can get free XTZ at the [Etherlink fauce
 ## Contracts
 
 
-- **ERC-20 proxy**: This Etherlink contract accepts the tickets and mints ERC-20 tokens that are equivalent to the Tezos tokens.
-This contract implements the ERC20 Proxy [deposit interface](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md#l2-proxy-deposit-interface) and [withdraw interface](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md#l2-proxy-withdraw-interface).
-For an example, see [`ERC20Proxy.sol`](etherlink/src/ERC20Proxy.sol).
+- **OFTezEVMProxy**: This Etherlink contract mints and burns Layer Zero OFT compliant tokens that are equivalent to the Tezos tokens.
+This contract implements the Layer Zero OFT internal credit and debit interface and enables tokens to be exchanged between:
+* variant EVM &harr; variant EVM
+* variant EVM &harr; Etherlink (L2)
+
+For more information on the Layer Zero OFT standard see [here](https://docs.layerzero.network/v2/developers/evm/oft/quickstart) 
+For an example, see ['OFTezEVMProxy.sol](etherlink/src/OFTezEVMProxy.sol)
 
 
-- **ERC-20 proxy**: This Etherlink contract accepts the tickets and mints ERC-20 tokens that are equivalent to the Tezos tokens.
-This contract implements the ERC20 Proxy [deposit interface](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md#l2-proxy-deposit-interface) and [withdraw interface](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md#l2-proxy-withdraw-interface).
-For an example, see [`ERC20Proxy.sol`](etherlink/src/ERC20Proxy.sol).
+- **OFTezProxy**: This Etherlink contract accepts the tickets and mints Layer Zero OFT compliant tokens that are equivalent to the Tezos tokens. This contract also mints/burns Layer Zero OFT compliant tokens bridged into/out of Etherlink 
+This contract implements the TZIP029 [deposit interface](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md#l2-proxy-deposit-interface) and [withdraw interface](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md#l2-proxy-withdraw-interface).
+For an example, see [`OFTezProxy.sol`](etherlink/src/OFTezProxy.sol).
 
 
 The bridging process relies on smart contracts that convert tokens to [tickets](https://docs.tezos.com/smart-contracts/data-types/complex-data-types#tickets) and transfer the tickets between Tezos and Etherlink.
 These contracts are an implementation of the [TZIP-029](https://gitlab.com/baking-bad/tzip/-/blob/wip/029-etherlink-token-bridge/drafts/current/draft-etherlink-token-bridge/etherlink-token-bridge.md) standard for bridging between Tezos and Etherlink.
 
-Each FA token needs its own copy of these contracts for you to bridge that token:
+For the OFTez tokens to be realised on Tezos a matching FA 1.2 or 2.0 standard token needs to be deployed on Tezos (L1). The contracts below also need to be implemented to support the bridging capability
 
 - **Ticketer**: This Tezos contract stores FA1.2 and FA2.0 tokens and issues tickets that represent those tokens, similar to a wrapped token.
 The ticket includes the type and number of tokens that it represents and the address of the ticketer contract.
