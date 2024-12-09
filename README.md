@@ -2,16 +2,33 @@
 The Etherlink OFTez Token Bridge provides an implementation of the [OFTez Bridging Standard](https://gitlab.com/taurai.ushewokunze/tzip/-/blob/master/drafts/current/draft-oftez-token-standard.md?ref_type=heads) 
 
 ## Introduction 
-The Etherlink OFTez Token Bridge provides a way for EVM compatible tokens to bridge between hosting i.e. variant EVMs, Etherlink (L2) and Tezos (L1) without the need for token swaps along the way. Users simply bridge from their host EVM onto Etherlink using the same wallet address, proceeding to bridge from Etherlink onto Tezos (L1) to their preferred Tezos Wallet. This is shown below:
-![OFTez to Tezos bridging process](docs/etherlink-oftez-token-bridge-variant-evm-process.png)
+The Etherlink OFTez Token Bridge provides a way for Tezos native FA Tokens of fungible variety to extend their bridging capabilities without the need for intermediate DeFi swaps. This means that fungible FA Tokens bridged from Tezos (L1) through to Etherlink (L2) will be onward bridgeable to other EVM chains. A key aspect of the OFTez standard is that it currently only supports Tezos (L1) sourced liquidity i.e. the liquidity available across the mesh of EVM networks will never exceed the total liquidity bridged from Tezos (L1). Another key feature of the OFTez protocol is that it utlises a mint and burn approach to token bridging which ensures a unified liquidity pool across all participant chains. 
 
-Additionally as OFTez Tokens can be implemented as a "mesh" between variant EVMs such as Base, Ethereum, Aribtrum etc, users can bridge point to point from whatever variant EVM they are on to Etherlink and onwards onto Tezos. This is shown below: 
-![OFTez Mesh to Tezos bridging process](docs/etherlink-oftez-token-bridge-mesh-configuration.png)
+The diagram below describes the high level architecture of the OFTez Briding Standard: 
+![OFTez Tezos Sourced Liquidity](docs/oftez-tezos-sourced-liquidity.png)
+
+The OFTez standard also introduces the concept of the **OFTez Mesh** which allows point to point bridging between EVM chains. This is described in the diagram below: 
+![OFTez Mesh](docs/oftez-mesh.png)
+
+
+### Key Features 
+Below are the key features of the OFTez protocol 
+- Unified cross chain liquidity i.e. the sum of liquidity across all chains never exceeds the circulating supply on Tezos (L1)
+- Mint and burn token management i.e. no risk of "locked" tokens being compromised
+- Fast outbound finality 
+- Zero DeFi swaps when protocol switching, same briding contract used for Tezos(L1)/(L2) bridging and Etherlink to EVM bridging
+- Two week liquidity repatriation to Tezos (L1)
+- Cross chain EVM mesh transfers i.e. point to point briding between onward EVMs, briding back to either Etherlink nor Tezos is not required
+- Layer Zero V2 OFT compatibility i.e. where there is an existing EVM OFT for a Tezos FA Token OFTez allows you to integrate liquidity.
+
+**Note:** The OFTez Standard does NOT currently support OFTez mesh sourced liquidity, i.e. it is not possible to move liquidity from a token based in the EVM mesh to Tezos (L1) even if a complimentary FA Token has been deployed on Tezos (L1). This is described in the diagram below: 
+![OFTez EVM Sourced Liquidity](docs/oftez-evm-sourced-liquidity.png)
+**Further Note** The OFTez Standard only supports fungible tokens 
 
 
 ## Tooling 
 
-The tooling in this repository has been created to help you bridge tokens between OFTez Tokens on variant EVMs, Etherlink (L2) and Tezos (L1). You should be able to use them to establishng bridging for any Layer Zero OFT (on EVM) and any Tezos FA (1.2/2.0) compliant token. For further information on the OFT Token standard see [Layer Zero OFT](https://docs.layerzero.network/v2/developers/evm/oft/quickstart) and for further information on Tezos FA token standards see [Token standards](https://docs.tezos.com/architecture/tokens#token-standards)   
+The tooling in this repository has been created to help you bridge tokens between Tezos (L1), Etherlink (L2 and variant EVMs). You should be able to use these tools to establish bridging for any Layer Zero OFT (on EVM) and any Tezos FA (1.2/2.0) compliant token. For further information on the OFT Token standard see [Layer Zero OFT](https://docs.layerzero.network/v2/developers/evm/oft/quickstart) and for further information on Tezos FA token standards see [Token standards](https://docs.tezos.com/architecture/tokens#token-standards)   
 
 The tools will help you to submit bridging transactions both into Etherlink from either a variant EVM (crediting) or Tezos (L1) (depositing) as well as out of Etherlink i.e. from Etherlink to Tezos (L1) (withdrawing) or to a variant EVM (debiting).  
 
@@ -21,11 +38,11 @@ The tooling supports interaction with both Testnet and Mainnet. A list of suppor
 
 To bridge tokens in this way, you need:
 
-- An OFTezEVMProxy smart contract deployed on a variant EVM of your choice e.g. Base, Ethereum, Arbitrum
+- An **OFTezEVMProxy** smart contract deployed on a variant EVM of your choice e.g. Base, Ethereum, Arbitrum
 - An EVM-compatible wallet with enough native gas token on your variant EVM to pay for transaction fees. e.g. [Rabby Wallet](https://rabby.io/)
-- An OFTezProxy smart contract deployed on Etherlink 
+- An **OFTezProxy** smart contract deployed on Etherlink 
 - An EVM-compatible wallet with enough XTZ on Etherlink to pay for transaction fees. e.g. [Rabby Wallet](https://rabby.io/)
-- An FA-compliant smart contract deployed to Tezos.
+- An **FA-compliant** fungible token smart contract deployed to Tezos.
  (You can use your own contract or the tool can deploy a sample contract for you.)
 - A Tezos wallet with enough tez to pay for the Tezos transaction fees.
 See [Installing and funding a wallet](https://docs.tezos.com/developing/wallet-setup) on docs.tezos.com.
@@ -186,7 +203,7 @@ The `deposit` command takes these parameters:
 If the deposit transaction is successful, the command returns the hash of the transaction, which you can look up on a Tezos block explorer.
 
 After the deposit transaction, the tokens are available immediately on Etherlink.
-You can see the bridged tokens by looking up the ERC-20 proxy contract or your Etherlink account on the Etherlink block explorer.
+You can see the bridged tokens by looking up the OFTezProxy contract or your Etherlink account on the Etherlink block explorer.
 
 ## Withdrawing tokens
 
@@ -194,7 +211,7 @@ After you bridge tokens to Etherlink, you can withdraw them back to Tezos with t
 
 ```shell
 poetry run withdraw \
-    --erc20-proxy-address 0x8AaBCd16bA3346649709e4Ff93E5c6Df18D8c2Ed \
+    --oftez-proxy-address 0x8AaBCd16bA3346649709e4Ff93E5c6Df18D8c2Ed \
     --amount 1 \
     --tezos-side-router-address KT199szFcgpAc46ZwsDykNBCa2t6u32xUyY7 \
     --ticketer-address-bytes 0x0106431674bc137dcfe537765838b1864759d6f79200 \
@@ -206,7 +223,7 @@ poetry run withdraw \
 
 The `withdraw` command accepts these arguments:
 
-- `--erc20-proxy-address`: The address of the ERC-20 proxy contract on Etherlink
+- `--oftez-proxy-address`: The address of the ERC-20 proxy contract on Etherlink
 - `--amount`: The amount of tokens to withdraw
 - `--tezos-side-router-address`: The address of the ticketer contract on Tezos or a separate router contract if the token uses a router for bridging
 - `--ticketer-address-bytes`: The address of the ticketer contract as a series of bytes, which you can get from the output of the `bridge_token` command or the `get_ticketer_command` command
@@ -316,7 +333,7 @@ docker run --rm etherlink-bridge deposit \
 
 ```shell
 docker run --rm etherlink-bridge withdraw \
-    --erc20-proxy-address 0x8AaBCd16bA3346649709e4Ff93E5c6Df18D8c2Ed \
+    --oftez-proxy-address 0x8AaBCd16bA3346649709e4Ff93E5c6Df18D8c2Ed \
     --amount 17 \
     --tezos-side-router-address KT199szFcgpAc46ZwsDykNBCa2t6u32xUyY7 \
     --ticketer-address-bytes 0x0106431674bc137dcfe537765838b1864759d6f79200 \
@@ -325,6 +342,14 @@ docker run --rm etherlink-bridge withdraw \
     --etherlink-private-key f463e320ed1bd1cd833e29efc383878f34abe6b596e5d163f51bb8581de6f8b8 \
     --etherlink-rpc-url "https://etherlink.dipdup.net"
 ```
+
+### Briddge tokens from Etherlink to variant EVM
+
+
+### Bridge tokens from variant EVM to variant EVM 
+
+
+### Bridge tokenss from variant EVM to Etherlink 
 
 
 
@@ -343,3 +368,10 @@ Below is a list of the chains that are supported by this tooling
 |Ethereum   | Testnet | 
 |Arbitrum   | Mainnet | 
 |Arbitrum   | Testnet | 
+|Optimism   | Mainnet | 
+|Optimism   | Testnet | 
+|Avalanche  | Mainnet | 
+|Avalanche  | Testnet |
+|BNB Chain  | Mainnet | 
+|BNB Chain  | Testnet |  
+
